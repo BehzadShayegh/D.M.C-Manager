@@ -138,6 +138,7 @@ def getQuestion(groupId) :
                     getQuestionWindow.Close()
                     return problemIds[index]
 
+            getQuestionWindow.Close()
             return 'You cann\'t choose this type any more ...'
             
         except :
