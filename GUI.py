@@ -23,19 +23,22 @@ problemLevels = problemsCsv['level'].tolist()
 problemsNumber = len(problemIds)
 
 
+sg.ChangeLookAndFeel('Black') 
 
-homeLayout = [[sg.Text('Enter group ID:')],      
-          [sg.Input()],
-          [sg.Text('Enter question ID:')],      
-          [sg.Input()],
-          [sg.RButton('Get', button_color=('white', 'yellow')), sg.RButton('Solve', button_color=('white', 'green')), sg.RButton('Dissolve', button_color=('white', 'red'))],
-          [sg.RButton('Status'), sg.Exit(button_color=('white', 'black'))]]      
+homeLayout = [
+          [sg.Text('Enter group ID:', text_color='white', background_color='black')],
+          [sg.Input(background_color='purple')],
+          [sg.Text('Enter question ID:', text_color='white', background_color='black')],      
+          [sg.Input(background_color='purple')],
+          [sg.RButton('Get', button_color=('white', 'darkblue')), sg.RButton('Solve', button_color=('white', 'darkgreen')), sg.RButton('Dissolve', button_color=('white', 'darkred'))],
+          [sg.RButton('Status', button_color=('white', 'purple')), sg.Exit(button_color=('white', 'black'))]]      
 
-getQuestionLayout = [[sg.Text('Enter question subject:')],      
-          [sg.Input()],
-          [sg.Text('Enter question level:')],      
-          [sg.Input()],
-          [sg.RButton('Apply'), sg.Exit(button_color=('white', 'black'))]]      
+getQuestionLayout = [
+          [sg.Text('Enter question subject:', text_color='white', background_color='black')],      
+          [sg.Input(background_color='purple')],
+          [sg.Text('Enter question level:', text_color='white', background_color='black')],      
+          [sg.Input(background_color='purple')],
+          [sg.RButton('Apply', button_color=('white', 'darkblue')), sg.Exit(button_color=('white', 'black'))]]      
 
 
 
@@ -112,7 +115,7 @@ def dissolve(groupId, questionId) :
     
 
 def getQuestion(groupId) :
-    getQuestionWindow = sg.Window('Gqt Question').Layout(getQuestionLayout)  
+    getQuestionWindow = sg.Window('Get Question').Layout(getQuestionLayout)  
 
     while True:
         try :
@@ -136,7 +139,7 @@ def getQuestion(groupId) :
                     update()
                     updateStatus(groupId, index, 'read')
                     getQuestionWindow.Close()
-                    return problemIds[index]
+                    return 'Pick -> id : '+str(problemIds[index])+'\nQuestion name : '+problemNames[index]
 
             getQuestionWindow.Close()
             return 'You cann\'t choose this type any more ...'
@@ -146,8 +149,7 @@ def getQuestion(groupId) :
 
 
 
-
-
+   
 homeWindow = sg.Window('Home').Layout(homeLayout)
 
 while True:
