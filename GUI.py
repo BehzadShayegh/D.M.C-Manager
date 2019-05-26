@@ -134,9 +134,9 @@ def getQuestion(groupId) :
                     
                     groupTickets[groupId-1] -= 1
                     update()
-                    updateStatus(groupId, index+1, 'read')
+                    updateStatus(groupId, index, 'read')
                     getQuestionWindow.Close()
-                    return 'Done!'
+                    return problemIds[index]
 
             return 'You cann\'t choose this type any more ...'
             
