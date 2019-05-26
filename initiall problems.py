@@ -5,6 +5,7 @@ problemsPath = './problems.csv'
 problems = []
 print('problems! format:')
 print('id/name/subject/level')
+print('------------------------------')
 while(True) :
     problem = input().split('/')
     if problem[0] == '-' : break
