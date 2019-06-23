@@ -15,6 +15,12 @@ with open("ProblemsJson.txt","r") as problemFile :
 problemsNumber = len(problemIds)
 maximumProblemNameLenght = max(measurer(problemNames))
 
+problemsHistory = {}
+for pid in problemIds :
+    problemsHistory[pid] = []
+with open("problemsHistory.txt","w") as phf :
+    phf.write(json.dumps(problemsHistory))
+
 # INTERFACE
 
 sg.ChangeLookAndFeel('Black')
@@ -37,6 +43,9 @@ def solved(groupName, tag) :
 
     if groupName not in groupNames :
         return 'Wrong group name'
+
+    if groupName in problemsHistory[problemSet[tag]] :
+        return 'This problem is already solved for you!'
     
     groupPoints[groupNames.index(groupName)] += 1
     with open("GroupsJson.txt","w") as groupFile :
@@ -46,6 +55,10 @@ def solved(groupName, tag) :
         problemsSolved[problemSet[tag]] += 1
         with open("ProblemsJson.txt","w") as problemFile :
             problemFile.write(json.dumps([problemIds, problemNames, problemsSolved]))
+
+    problemsHistory[problemSet[tag]].append(groupName)
+    with open("problemsHistory.txt","w") as phf :
+        phf.write(json.dumps(problemsHistory))
 
     return 'Done'
 
