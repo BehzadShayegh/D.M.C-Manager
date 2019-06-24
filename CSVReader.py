@@ -9,7 +9,6 @@ groupPoints = groupsCsv['point'].tolist()
 
 problemsPath = './problems.csv'
 problemsCsv = pd.read_csv(problemsPath)
-problemIds = problemsCsv['id'].tolist()
 problemNames = problemsCsv['name'].tolist()
 problemsSolved = problemsCsv['solved'].tolist()
 
@@ -17,4 +16,4 @@ with open("GroupsJson.txt","w") as f :
     f.write(json.dumps(list(zip(*(reversed(sorted(zip(groupPoints, groupNames))))))))
 
 with open("ProblemsJson.txt","w") as f :
-    f.write(json.dumps([problemIds, problemNames, problemsSolved]))
+    f.write(json.dumps([problemNames, problemsSolved]))

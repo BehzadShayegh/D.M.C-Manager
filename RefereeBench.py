@@ -11,12 +11,12 @@ groupsNumber = len(groupPoints)
 maximumGroupNameLenght = max(measurer(groupNames))
 
 with open("ProblemsJson.txt","r") as problemFile :
-    problemIds, problemNames, problemsSolved = json.load(problemFile)
-problemsNumber = len(problemIds)
+    problemNames, problemsSolved = json.load(problemFile)
+problemsNumber = len(problemsSolved)
 maximumProblemNameLenght = max(measurer(problemNames))
 
 problemsHistory = {}
-for pid in problemIds :
+for pid in range(problemsNumber) :
     problemsHistory[pid] = []
 with open("problemsHistory.txt","w") as phf :
     phf.write(json.dumps(problemsHistory))
@@ -44,8 +44,9 @@ def solved(groupName, tag) :
     if groupName not in groupNames :
         return 'Wrong group name'
 
-    if groupName in problemsHistory[problemSet[tag]] :
-        return 'This problem is already solved for you!'
+    if tag != 'extra' :
+        if groupName in problemsHistory[problemSet[tag]] :
+            return 'This problem is already solved for you!'
     
     groupPoints[groupNames.index(groupName)] += 1
     with open("GroupsJson.txt","w") as groupFile :
@@ -54,9 +55,9 @@ def solved(groupName, tag) :
     if tag != 'extra' :
         problemsSolved[problemSet[tag]] += 1
         with open("ProblemsJson.txt","w") as problemFile :
-            problemFile.write(json.dumps([problemIds, problemNames, problemsSolved]))
-
-    problemsHistory[problemSet[tag]].append(groupName)
+            problemFile.write(json.dumps([problemNames, problemsSolved]))
+        problemsHistory[problemSet[tag]].append(groupName)
+    
     with open("problemsHistory.txt","w") as phf :
         phf.write(json.dumps(problemsHistory))
 

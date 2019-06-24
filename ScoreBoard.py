@@ -14,8 +14,8 @@ groupsNumber = len(groupPoints)
 maximumGroupNameLenght = max(measurer(groupNames))
 
 with open("ProblemsJson.txt","r") as problemFile :
-    problemIds, problemNames, problemsSolved = json.load(problemFile)
-problemsNumber = len(problemIds)
+    problemNames, problemsSolved = json.load(problemFile)
+problemsNumber = len(problemsSolved)
 maximumProblemNameLenght = max(measurer(problemNames))
 
 # INTERFACE
@@ -74,6 +74,10 @@ def nextProblem(problemSet, startTimes) :
 scoreBoardWindow = sg.Window('Score Board', scoreBoardLayout, no_titlebar=True, auto_size_buttons=False, grab_anywhere=True) # keep_on_top=True
 problemSet = {'easy': START_PROBLEM_ID-1, 'normal': START_PROBLEM_ID, 'hard': START_PROBLEM_ID+1}
 
+startTimes = {'easy': int(round(time.time() * 100) - (100*TIME_LIMIT)/3),\
+            'normal': int(round(time.time() * 100) + 0 ),\
+            'hard': int(round(time.time() * 100) + (100*TIME_LIMIT)/3)}
+
 with open("ProblemSet.txt","w") as f :
     f.write(json.dumps(problemSet))
 
@@ -81,35 +85,39 @@ def updateScoreBoard() :
     with open("GroupsJson.txt","r") as groupFile :
         groupPoints, groupNames = json.load(groupFile)
     with open("ProblemsJson.txt","r") as problemFile :
-        problemIds, problemNames, problemsSolved = json.load(problemFile)
+        problemNames, problemsSolved = json.load(problemFile)
 
     for index in range(groupsNumber) :
-        scoreBoardWindow.Element('rank'+str(index)).Update(groupNames[index])
+        scoreBoardWindow.Element('rank'+str(index)).Update(str(index+1)+'. '+groupNames[index])
         scoreBoardWindow.Element('point'+str(index)).Update(groupPoints[index])
     
+    nextProblem = False
     for tag in problemSet :
         if problemSet[tag] >= problemsNumber :
             continue
+        scoreBoardWindow.Element(tag+'Name').Update(str(problemSet[tag]+1)+'. '+problemNames[problemSet[tag]])
         scoreBoardWindow.Element(tag+'Solved').Update(str(problemsSolved[problemSet[tag]]))
-
-
-def scoreBoard() :
-    startTimes = {'easy': int(round(time.time() * 100) - (100*TIME_LIMIT)/3),\
-                'normal': int(round(time.time() * 100) + 0 ),\
-                'hard': int(round(time.time() * 100) + (100*TIME_LIMIT)/3)}
+        
+        remainderTime = TIME_LIMIT - (int(round(time.time() * 100)) - startTimes[tag]) // 100
+        scoreBoardWindow.Element(tag+'Time').Update('{:02d}:{:02d}'.format((remainderTime) // 60, (remainderTime) % 60))
+        if remainderTime <= 0 : nextProblem = True
     
+    return nextProblem
+                
+def clearBoard() :
+    for tag in problemSet :
+        scoreBoardWindow.Element(tag+'Name').Update('')
+        scoreBoardWindow.Element(tag+'Solved').Update('')
+        scoreBoardWindow.Element(tag+'Time').Update('')
+
+
+def scoreBoard() :    
     freeze = False
     freezeTime = 0
     timer = 1
 
     while (True):
-        # try :
-            if timer > 4 :
-                timer = 1
-                updateScoreBoard()
-            else :
-                timer += 1
-            
+        # try :            
             event, values = scoreBoardWindow.Read(timeout=1000)
             
             if event == 'Exit' :
@@ -118,7 +126,7 @@ def scoreBoard() :
             
             elif event == 'Freeze' :
                 if not freeze :
-                    updateScoreBoard(groupPoints, groupNames)
+                    updateScoreBoard()
 
                     freezeTime = int(round(time.time() * 100))
                 else :
@@ -128,26 +136,10 @@ def scoreBoard() :
             
             if freeze : continue
 
-            needNextProblem = False
-
-            for tag in problemSet :
-                if problemSet[tag] >= problemsNumber :
-                    scoreBoardWindow.Element(tag+'Name').Update('')
-                    scoreBoardWindow.Element(tag+'Solved').Update('')
-                    scoreBoardWindow.Element(tag+'Time').Update('')
-                    continue
-
-                scoreBoardWindow.Element(tag+'Name').Update(str(problemSet[tag]+1)+'. '+problemNames[problemSet[tag]])
-
-                remainderTime = TIME_LIMIT - (int(round(time.time() * 100)) - startTimes[tag]) // 100
-                scoreBoardWindow.Element(tag+'Time').Update('{:02d}:{:02d}'.format((remainderTime) // 60, (remainderTime) % 60))
-                if remainderTime <= 0 : needNextProblem = True
-
-            if needNextProblem :
+            clearBoard()
+            if updateScoreBoard() :
                 nextProblem(problemSet, startTimes)
-                for tag in problemSet :
-                    scoreBoardWindow.Element(tag+'Solved').Update('')
-                    
+
         # except :
         #     pass
     scoreBoardWindow.Close()    

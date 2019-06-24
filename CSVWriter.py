@@ -9,7 +9,6 @@ groupPoints = groupsCsv['point'].tolist()
 
 problemsPath = './problems.csv'
 problemsCsv = pd.read_csv(problemsPath)
-problemIds = problemsCsv['id'].tolist()
 problemNames = problemsCsv['name'].tolist()
 problemsSolved = problemsCsv['solved'].tolist()
 
@@ -17,13 +16,13 @@ with open("GroupsJson.txt","r") as groupFile :
     groupPoints, groupNames = json.load(groupFile)
 
 with open("ProblemsJson.txt","r") as problemFile :
-    problemIds, problemNames, problemsSolved = json.load(problemFile)
+    problemNames, problemsSolved = json.load(problemFile)
 
 groupsInfo = {'id': range(1, len(groupPoints)+1),
         'name': groupNames,
         'point': groupPoints }
 
-problemsInfo = {'id': problemIds,
+problemsInfo = {'id': range(1, len(problemsSolved)+1),
         'name': problemNames,
         'solved': problemsSolved }
 
