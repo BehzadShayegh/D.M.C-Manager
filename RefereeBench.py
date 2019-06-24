@@ -42,8 +42,11 @@ def solved(groupName, tag) :
         problemSet = json.load(f)
 
     if groupName not in groupNames :
-        return 'Wrong group name'
+        return 'Wrong group name!'
 
+    if problemSet[tag] >= problemsNumber :
+        return 'This problem dosen\'t exist anymore!'
+    
     if tag != 'extra' :
         if groupName in problemsHistory[problemSet[tag]] :
             return 'This problem is already solved for you!'
