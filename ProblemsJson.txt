@@ -1,1 +1,0 @@
-[["first", "second", "mine", "ssd"], [5, 9, 7, 5]]
