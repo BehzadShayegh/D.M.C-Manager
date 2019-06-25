@@ -1,19 +1,19 @@
 import PySimpleGUI as sg
 import time
 import numpy as np
-from os import _exit
+import os
 import json
 measurer = np.vectorize(len)
 
 TIME_LIMIT = 3*10
 START_PROBLEM_ID = 1
 
-with open("GroupsJson.txt","r") as groupFile :
+with open("../Jasons/GroupsJson.txt","r") as groupFile :
     groupPoints, groupNames = json.load(groupFile)
 groupsNumber = len(groupPoints)
 maximumGroupNameLenght = max(measurer(groupNames))
 
-with open("ProblemsJson.txt","r") as problemFile :
+with open("../Jasons/ProblemsJson.txt","r") as problemFile :
     problemNames, problemsSolved = json.load(problemFile)
 problemsNumber = len(problemsSolved)
 maximumProblemNameLenght = max(measurer(problemNames))
@@ -22,9 +22,18 @@ maximumProblemNameLenght = max(measurer(problemNames))
 
 sg.ChangeLookAndFeel('Dark')  
 
+def rankColor(index) :
+    if index == 0 :
+        return 'gold'
+    elif index == 1 :
+        return 'silver'
+    elif index == 2 :
+        return 'darkorange'
+    else : return 'white'
+
 rightSide = [
-    [sg.Text(str(index+1)+'. '+groupNames[index], size=(2*maximumGroupNameLenght, 1), text_color='white', background_color='black', font=("Helvetica", 37), key='rank'+str(index)),
-    sg.Text(groupPoints[index], justification='right', text_color='white', background_color='black', font=("Helvetica", 37), key='point'+str(index))]
+    [sg.Text(str(index+1)+'. '+groupNames[index], size=(2*maximumGroupNameLenght, 1), text_color=rankColor(index), background_color='black', font=("Helvetica", 37), key='rank'+str(index)),
+    sg.Text(groupPoints[index], justification='right', text_color=rankColor(index), background_color='black', font=("Helvetica", 37), key='point'+str(index))]
     for index in range(15) ]
 rightestSide = [
     [sg.Text(str(index+1)+'. '+groupNames[index], size=(2*maximumGroupNameLenght, 1), text_color='white', background_color='black', key='rank'+str(index)),
@@ -67,8 +76,10 @@ def nextProblem(problemSet, startTimes) :
     problemSet['hard'] += 1
     startTimes['hard'] = int(round(time.time() * 100))
     
-    with open("ProblemSet.txt","w") as f :
+    with open("../Jasons/ProblemSet.txt","w") as f :
         f.write(json.dumps(problemSet))
+
+    os.system('mpg123 ../voices/QtimeFinish.mp3')
 
 
 scoreBoardWindow = sg.Window('Score Board', scoreBoardLayout, no_titlebar=True, auto_size_buttons=False, grab_anywhere=True) # keep_on_top=True
@@ -78,13 +89,13 @@ startTimes = {'easy': int(round(time.time() * 100) - (100*TIME_LIMIT)/3),\
             'normal': int(round(time.time() * 100) + 0 ),\
             'hard': int(round(time.time() * 100) + (100*TIME_LIMIT)/3)}
 
-with open("ProblemSet.txt","w") as f :
+with open("../Jasons/ProblemSet.txt","w") as f :
     f.write(json.dumps(problemSet))
 
 def updateScoreBoard() :
-    with open("GroupsJson.txt","r") as groupFile :
+    with open("../Jasons/GroupsJson.txt","r") as groupFile :
         groupPoints, groupNames = json.load(groupFile)
-    with open("ProblemsJson.txt","r") as problemFile :
+    with open("../Jasons/ProblemsJson.txt","r") as problemFile :
         problemNames, problemsSolved = json.load(problemFile)
 
     for index in range(groupsNumber) :
@@ -116,13 +127,17 @@ def scoreBoard() :
     freezeTime = 0
     timer = 1
 
+    os.system('mpg123 ../voices/Cstart.mp3')
+
     while (True):
-        # try :            
+        # try :
             event, values = scoreBoardWindow.Read(timeout=1000)
             
             if event == 'Exit' :
-                _exit(True)
-                break
+                os._exit(True)
+
+            if not os.path.exists('../Jasons/ProblemSet.txt') :
+                continue
             
             elif event == 'Freeze' :
                 if not freeze :

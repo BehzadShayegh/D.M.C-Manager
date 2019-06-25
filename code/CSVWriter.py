@@ -1,21 +1,22 @@
 from pandas import DataFrame, read_csv
 import pandas as pd
 import json
+import os
 
-groupsPath = './groups.csv'
+groupsPath = '../CSVs/groups.csv'
 groupsCsv = pd.read_csv(groupsPath)
 groupNames = groupsCsv['name'].tolist()
 groupPoints = groupsCsv['point'].tolist()
 
-problemsPath = './problems.csv'
+problemsPath = '../CSVs/problems.csv'
 problemsCsv = pd.read_csv(problemsPath)
 problemNames = problemsCsv['name'].tolist()
 problemsSolved = problemsCsv['solved'].tolist()
 
-with open("GroupsJson.txt","r") as groupFile :
+with open("../Jasons/GroupsJson.txt","r") as groupFile :
     groupPoints, groupNames = json.load(groupFile)
 
-with open("ProblemsJson.txt","r") as problemFile :
+with open("../Jasons/ProblemsJson.txt","r") as problemFile :
     problemNames, problemsSolved = json.load(problemFile)
 
 groupsInfo = {'id': range(1, len(groupPoints)+1),
@@ -31,3 +32,5 @@ export_csv = DataFrame(groupsInfo, columns= ['id', 'name', 'point'])\
 
 export_csv = DataFrame(problemsInfo, columns= ['id', 'name', 'solved'])\
             .to_csv(problemsPath, index = None, header=True)
+
+os.system('rm -rf ../Jasons/')

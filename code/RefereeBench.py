@@ -5,12 +5,12 @@ import threading
 import json
 measurer = np.vectorize(len)
 
-with open("GroupsJson.txt","r") as groupFile :
+with open("../Jasons/GroupsJson.txt","r") as groupFile :
     groupPoints, groupNames = json.load(groupFile)
 groupsNumber = len(groupPoints)
 maximumGroupNameLenght = max(measurer(groupNames))
 
-with open("ProblemsJson.txt","r") as problemFile :
+with open("../Jasons/ProblemsJson.txt","r") as problemFile :
     problemNames, problemsSolved = json.load(problemFile)
 problemsNumber = len(problemsSolved)
 maximumProblemNameLenght = max(measurer(problemNames))
@@ -18,7 +18,7 @@ maximumProblemNameLenght = max(measurer(problemNames))
 problemsHistory = {}
 for pid in range(problemsNumber) :
     problemsHistory[pid] = []
-with open("problemsHistory.txt","w") as phf :
+with open("../Jasons/problemsHistory.txt","w") as phf :
     phf.write(json.dumps(problemsHistory))
 
 # INTERFACE
@@ -38,7 +38,7 @@ homeLayout = [
 
 def solved(groupName, tag) :
     problemSet = {}
-    with open("ProblemSet.txt","r") as f :
+    with open("../Jasons/ProblemSet.txt","r") as f :
         problemSet = json.load(f)
 
     if groupName not in groupNames :
@@ -52,16 +52,16 @@ def solved(groupName, tag) :
             return 'This problem is already solved for you!'
     
     groupPoints[groupNames.index(groupName)] += 1
-    with open("GroupsJson.txt","w") as groupFile :
+    with open("../Jasons/GroupsJson.txt","w") as groupFile :
         groupFile.write(json.dumps(list(zip(*(reversed(sorted(zip(groupPoints, groupNames))))))))
     
     if tag != 'extra' :
         problemsSolved[problemSet[tag]] += 1
-        with open("ProblemsJson.txt","w") as problemFile :
+        with open("../Jasons/ProblemsJson.txt","w") as problemFile :
             problemFile.write(json.dumps([problemNames, problemsSolved]))
         problemsHistory[problemSet[tag]].append(groupName)
     
-    with open("problemsHistory.txt","w") as phf :
+    with open("../Jasons/problemsHistory.txt","w") as phf :
         phf.write(json.dumps(problemsHistory))
 
     return 'Done'
