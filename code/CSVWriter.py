@@ -33,4 +33,4 @@ export_csv = DataFrame(groupsInfo, columns= ['id', 'name', 'point'])\
 export_csv = DataFrame(problemsInfo, columns= ['id', 'name', 'solved'])\
             .to_csv(problemsPath, index = None, header=True)
 
-os.system('rm -rf ../Jasons/')
+# os.system('rm -rf ../Jasons/')
