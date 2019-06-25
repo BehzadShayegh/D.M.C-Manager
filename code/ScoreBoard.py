@@ -58,7 +58,7 @@ leftSide = [
     problem('hard'),
     [sg.Text('_'*150)],
     [sg.RButton('Freeze', button_color=('white', 'purple')), 
-    sg.Text('Programmed by B.Shayegh. Github : https://github.com/BehzadShayegh/DMC')],
+    sg.Text('Programmed by B.Shayegh.\nGithub : https://github.com/BehzadShayegh/DMCManager.git')],
     [sg.Exit(button_color=('white', 'purple'))]
     ]
 
