@@ -30,4 +30,10 @@ export_csv = DataFrame(groupsInfo, columns= ['id', 'name', 'point'])\
             .to_csv(groupsPath, index = None, header=True)
 
 export_csv = DataFrame(problemsInfo, columns= ['id', 'name', 'solved'])\
+<<<<<<< HEAD
             .to_csv(problemsPath, index = None, header=True)
+=======
+            .to_csv(problemsPath, index = None, header=True)
+
+# os.system('rm -rf ../Jasons/')
+>>>>>>> 06062b46e9ffcebb958cb4f529c4a2bd7bcda544
