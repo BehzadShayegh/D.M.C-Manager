@@ -1,7 +1,6 @@
 from pandas import DataFrame, read_csv
 import pandas as pd
 import json
-import os
 
 groupsPath = '../CSVs/groups.csv'
 groupsCsv = pd.read_csv(groupsPath)
@@ -32,5 +31,3 @@ export_csv = DataFrame(groupsInfo, columns= ['id', 'name', 'point'])\
 
 export_csv = DataFrame(problemsInfo, columns= ['id', 'name', 'solved'])\
             .to_csv(problemsPath, index = None, header=True)
-
-os.system('rm -rf ../Jasons/')

@@ -32,6 +32,7 @@ homeLayout = [
     [sg.RButton('easy problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
     [sg.RButton('normal problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
     [sg.RButton('hard problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
+    [sg.RButton('previous problem solved!', button_color=('white', 'darkred'), size = (30, 1))],
     [sg.RButton('extra problem solved!', button_color=('white', 'darkblue'), size = (30, 1))],
     [sg.Exit(button_color=('white', 'black'))]
     ]
@@ -40,10 +41,14 @@ def solved(groupName, tag) :
     problemSet = {}
     with open("../Jasons/ProblemSet.txt","r") as f :
         problemSet = json.load(f)
+    problemSet['previous'] = problemSet['easy'] - 1
 
     if groupName not in groupNames :
         return 'Wrong group name!'
 
+    if problemSet[tag] < 0 :
+        return 'This problem dosen\'t exist'
+        
     if problemSet[tag] >= problemsNumber :
         return 'This problem dosen\'t exist anymore!'
     
