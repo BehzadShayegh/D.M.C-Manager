@@ -46,11 +46,13 @@ def solved(groupName, tag) :
     if groupName not in groupNames :
         return 'Wrong group name!'
 
-    if problemSet[tag] < 0 :
-        return 'This problem dosen\'t exist'
-        
-    if problemSet[tag] >= problemsNumber :
-        return 'This problem dosen\'t exist anymore!'
+    if tag != 'extra' :
+        if problemSet[tag] < 0 :
+            return 'This problem dosen\'t exist'
+
+    if tag != 'extra' :  
+        if problemSet[tag] >= problemsNumber :
+            return 'This problem dosen\'t exist anymore!'
     
     if tag != 'extra' :
         if groupName in problemsHistory[problemSet[tag]] :
