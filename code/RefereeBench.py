@@ -3,73 +3,72 @@ import numpy as np
 from os import _exit
 import threading
 import json
+import pandas as pd
+import warnings
+warnings.filterwarnings("ignore")
 measurer = np.vectorize(len)
 
-with open("../Jasons/GroupsJson.txt","r") as groupFile :
-    groupPoints, groupNames = json.load(groupFile)
-groupsNumber = len(groupPoints)
-maximumGroupNameLenght = max(measurer(groupNames))
-
-with open("../Jasons/ProblemsJson.txt","r") as problemFile :
-    problemNames, problemsSolved = json.load(problemFile)
-problemsNumber = len(problemsSolved)
-maximumProblemNameLenght = max(measurer(problemNames))
-
-problemsHistory = {}
-for pid in range(problemsNumber) :
-    problemsHistory[pid] = []
-with open("../Jasons/problemsHistory.txt","w") as phf :
-    phf.write(json.dumps(problemsHistory))
-
-# INTERFACE
+groups = pd.read_csv("../CSVs/groups.csv", usecols=['name'])['name'].values.tolist()
+problems = pd.read_csv("../CSVs/problems.csv", usecols=['id'])['id'].values.tolist()
 
 sg.ChangeLookAndFeel('Black')
 
 homeLayout = [
-    [sg.Text('Enter group name:', text_color='white', background_color='black', font=("Helvetica", 15)),
-    sg.Input(background_color='purple', font=("Helvetica", 15), size=(2*maximumGroupNameLenght,1))],
-    [sg.Text('_'*35, background_color='black')],    
-    [sg.RButton('easy problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
-    [sg.RButton('normal problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
-    [sg.RButton('hard problem solved!', button_color=('white', 'darkgreen'), size = (30, 1))],
-    [sg.RButton('previous problem solved!', button_color=('white', 'darkred'), size = (30, 1))],
-    [sg.RButton('extra problem solved!', button_color=('white', 'darkblue'), size = (30, 1))],
-    [sg.Exit(button_color=('white', 'black'))]
-    ]
+    [sg.Listbox(values=(groups), size=(15, 15), font=("Helvetica", 20), key='__groupname__'),
+        sg.Listbox(values=(problems), size=(15, 15), font=("Helvetica", 20), key='__problemNumber__')],
+    [sg.Exit(button_color=('white', 'purple')),
+        sg.RButton('Accept!', button_color=('white', 'green'), size = (25, 1)),
+        sg.RButton('Reject!', button_color=('white', 'red'), size = (25, 1))]
+        
+]
 
 def solved(groupName, tag) :
-    problemSet = {}
-    with open("../Jasons/ProblemSet.txt","r") as f :
-        problemSet = json.load(f)
-    problemSet['previous'] = problemSet['easy'] - 1
-
-    if groupName not in groupNames :
+    if groupName not in groups :
         return 'Wrong group name!'
 
-    if tag != 'extra' :
-        if problemSet[tag] < 0 :
-            return 'This problem dosen\'t exist'
+    if tag not in problems :
+        return 'This problem dosen\'t exist'
 
-    if tag != 'extra' :  
-        if problemSet[tag] >= problemsNumber :
-            return 'This problem dosen\'t exist anymore!'
+    groupsActivity = pd.read_csv("../db/groupsActivity.csv")
+    thisGroupActivity = json.loads(groupsActivity[groupsActivity['name']==groupName]['problems'].values[0])
+    if tag in  thisGroupActivity:
+        return 'This problem is already solved for you!'
     
-    if tag != 'extra' :
-        if groupName in problemsHistory[problemSet[tag]] :
-            return 'This problem is already solved for you!'
-    
-    groupPoints[groupNames.index(groupName)] += 1
-    with open("../Jasons/GroupsJson.txt","w") as groupFile :
-        groupFile.write(json.dumps(list(zip(*(reversed(sorted(zip(groupPoints, groupNames))))))))
-    
-    if tag != 'extra' :
-        problemsSolved[problemSet[tag]] += 1
-        with open("../Jasons/ProblemsJson.txt","w") as problemFile :
-            problemFile.write(json.dumps([problemNames, problemsSolved]))
-        problemsHistory[problemSet[tag]].append(groupName)
-    
-    with open("../Jasons/problemsHistory.txt","w") as phf :
-        phf.write(json.dumps(problemsHistory))
+    thisGroupActivity.append(tag)
+    groupsActivity['problems'][groupsActivity['name']==groupName] = json.dumps(thisGroupActivity)
+    groupsActivity['point'][groupsActivity['name']==groupName] += 1
+    groupsActivity.to_csv("../db/groupsActivity.csv",index=False)
+
+    problemHistory = pd.read_csv("../db/problemHistory.csv")
+    thisProblemHistory = json.loads(problemHistory[problemHistory['id']==tag]['solvers'].values[0])
+    thisProblemHistory.append(groupName)
+    problemHistory['solvers'][problemHistory['id']==tag] = json.dumps(thisProblemHistory)
+    problemHistory['solved_no'][problemHistory['id']==tag] += 1
+    problemHistory.to_csv("../db/problemHistory.csv",index=False)
+
+    return 'Done'
+
+def reject(groupName, tag):
+    if groupName not in groups :
+        return 'Wrong group name!'
+    groupsActivity = pd.read_csv("../db/groupsActivity.csv")
+    thisGroupActivity = json.loads(groupsActivity[groupsActivity['name']==groupName]['problems'].values[0])
+    if tag not in problems :
+        return 'This problem dosen\'t exist'
+    if tag not in thisGroupActivity:
+        return 'Invalid input'
+
+    thisGroupActivity.remove(tag)
+    groupsActivity['problems'][groupsActivity['name']==groupName] = json.dumps(thisGroupActivity)
+    groupsActivity['point'][groupsActivity['name']==groupName] -= 1
+    groupsActivity.to_csv("../db/groupsActivity.csv",index=False)
+
+    problemHistory = pd.read_csv("../db/problemHistory.csv")
+    thisProblemHistory = json.loads(problemHistory[problemHistory['id']==tag]['solvers'].values[0])
+    thisProblemHistory.remove(groupName)
+    problemHistory['solvers'][problemHistory['id']==tag] = json.dumps(thisProblemHistory)
+    problemHistory['solved_no'][problemHistory['id']==tag] -= 1
+    problemHistory.to_csv("../db/problemHistory.csv",index=False)
 
     return 'Done'
 
@@ -78,18 +77,23 @@ homeWindow = sg.Window('Home', background_color='black').Layout(homeLayout)
 
 def refereeBench() :
     while True:
-        # try :
-            event, values = homeWindow.Read(timeout=200)
-            if event is None or event == 'Exit':   
-                _exit(True)   
-                break
+        event, values = homeWindow.Read(timeout=200)
+        if event is None or event == 'Exit':
+            homeWindow.Close()
+            _exit(True)
+            break
 
-            elif len(event.split()) > 2 and event.split()[2] == 'solved!' :
-                sg.Popup(solved(values[0], event.split()[0]), font=("Helvetica", 20))
-            
-        # except :
-        #     pass
+        elif event == 'Reject!':
+            if(len(values['__groupname__']) != 0 and len(values['__problemNumber__']) != 0):
+                sg.Popup(reject(values['__groupname__'][0], values['__problemNumber__'][0]), font=("Helvetica", 20))
+            else:
+                sg.Popup('Invalid input!', font=("Helvetica", 20))
 
+
+        elif event == 'Accept!':
+            if(len(values['__groupname__']) != 0 and len(values['__problemNumber__']) != 0):
+                sg.Popup(solved(values['__groupname__'][0], values['__problemNumber__'][0]), font=("Helvetica", 20))
+            else:
+                sg.Popup('Invalid input!', font=("Helvetica", 20))
     homeWindow.Close()
-
 refereeBench()
